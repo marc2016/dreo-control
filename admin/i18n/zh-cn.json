@@ -1,5 +1,14 @@
 {
     "dreo-control adapter settings": "dreo-control的适配器设置",
-    "option1": "选项1",
-    "option2": "选项2"
+    "email": "电子邮件",
+    "email_help": "您的 Dreo 帐户的电子邮件地址",
+    "password": "密码",
+    "refreshInterval": "刷新间隔（秒）",
+    "refreshInterval_help": "作为实时连接回退的轮询间隔（至少 60 秒）",
+    "region": "地区",
+    "region_eu": "欧洲",
+    "region_help": "您帐户的 Dreo 云区域",
+    "region_us": "北美/全球",
+    "useWebSocket": "使用实时更新（WebSocket）",
+    "useWebSocket_help": "立即接收设备更改，而不仅仅是通过轮询"
 }

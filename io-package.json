@@ -31,20 +31,28 @@
             "zh-cn": "德里奥控制"
         },
         "desc": {
-            "en": "dreo-control",
-            "de": "Dreo-Kontrolle",
-            "ru": "дрео-контроль",
-            "pt": "controle dreo",
-            "nl": "dreo-controle",
-            "fr": "dreo-contrôle",
-            "it": "dreo-controllo",
-            "es": "control remoto",
-            "pl": "kontrola Dreo",
-            "uk": "dreo-контроль",
-            "zh-cn": "dreo-control"
+            "en": "Control Dreo smart heaters and fans via the Dreo cloud",
+            "de": "Steuerung von Dreo Heizlüftern und Ventilatoren über die Dreo Cloud",
+            "ru": "Управление обогревателями и вентиляторами Dreo через облако Dreo",
+            "pt": "Controle aquecedores e ventiladores inteligentes Dreo através da nuvem Dreo",
+            "nl": "Bedien slimme Dreo-kachels en -ventilatoren via de Dreo-cloud",
+            "fr": "Contrôlez les radiateurs et ventilateurs intelligents Dreo via le cloud Dreo",
+            "it": "Controlla stufette e ventilatori intelligenti Dreo tramite il cloud Dreo",
+            "es": "Controle calefactores y ventiladores inteligentes Dreo a través de la nube Dreo",
+            "pl": "Sterowanie inteligentnymi grzejnikami i wentylatorami Dreo przez chmurę Dreo",
+            "uk": "Керування розумними обігрівачами та вентиляторами Dreo через хмару Dreo",
+            "zh-cn": "通过 Dreo 云控制 Dreo 智能取暖器和风扇"
         },
-        "authors": ["Marc Lammers <marc@lammers.dev>"],
-        "keywords": ["template", "automation", "IoT", "integration"],
+        "authors": [
+            "Marc Lammers <marc@lammers.dev>"
+        ],
+        "keywords": [
+            "dreo",
+            "heater",
+            "fan",
+            "climate",
+            "cloud"
+        ],
         "licenseInformation": {
             "type": "free",
             "license": "MIT"
@@ -60,7 +68,7 @@
         "type": "climate-control",
         "compact": true,
         "connectionType": "cloud",
-        "dataSource": "poll",
+        "dataSource": "push",
         "adminUI": {
             "config": "json"
         },
@@ -75,10 +83,62 @@
             }
         ]
     },
+    "encryptedNative": [
+        "password"
+    ],
+    "protectedNative": [
+        "password"
+    ],
     "native": {
-        "option1": true,
-        "option2": "42"
+        "email": "",
+        "password": "",
+        "region": "eu",
+        "refreshInterval": 300,
+        "useWebSocket": true
     },
     "objects": [],
-    "instanceObjects": []
+    "instanceObjects": [
+        {
+            "_id": "info",
+            "type": "channel",
+            "common": {
+                "name": "Information"
+            },
+            "native": {}
+        },
+        {
+            "_id": "info.connection",
+            "type": "state",
+            "common": {
+                "role": "indicator.connected",
+                "name": "Connected to Dreo cloud",
+                "type": "boolean",
+                "read": true,
+                "write": false,
+                "def": false
+            },
+            "native": {}
+        },
+        {
+            "_id": "commands",
+            "type": "channel",
+            "common": {
+                "name": "Commands"
+            },
+            "native": {}
+        },
+        {
+            "_id": "commands.manualRefresh",
+            "type": "state",
+            "common": {
+                "role": "button",
+                "name": "Refresh all devices",
+                "type": "boolean",
+                "read": false,
+                "write": true,
+                "def": false
+            },
+            "native": {}
+        }
+    ]
 }

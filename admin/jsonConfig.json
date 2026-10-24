@@ -2,9 +2,10 @@
     "i18n": true,
     "type": "panel",
     "items": {
-        "option1": {
-            "type": "checkbox",
-            "label": "option1",
+        "email": {
+            "type": "text",
+            "label": "email",
+            "help": "email_help",
             "newLine": true,
             "xs": 12,
             "sm": 12,
@@ -12,9 +13,51 @@
             "lg": 4,
             "xl": 4
         },
-        "option2": {
-            "type": "text",
-            "label": "option2",
+        "password": {
+            "type": "password",
+            "label": "password",
+            "repeat": false,
+            "visible": true,
+            "newLine": true,
+            "xs": 12,
+            "sm": 12,
+            "md": 6,
+            "lg": 4,
+            "xl": 4
+        },
+        "region": {
+            "type": "select",
+            "label": "region",
+            "help": "region_help",
+            "options": [
+                { "label": "region_eu", "value": "eu" },
+                { "label": "region_us", "value": "us" }
+            ],
+            "newLine": true,
+            "xs": 12,
+            "sm": 12,
+            "md": 6,
+            "lg": 4,
+            "xl": 4
+        },
+        "refreshInterval": {
+            "type": "number",
+            "label": "refreshInterval",
+            "help": "refreshInterval_help",
+            "min": 60,
+            "max": 86400,
+            "step": 1,
+            "newLine": true,
+            "xs": 12,
+            "sm": 12,
+            "md": 6,
+            "lg": 4,
+            "xl": 4
+        },
+        "useWebSocket": {
+            "type": "checkbox",
+            "label": "useWebSocket",
+            "help": "useWebSocket_help",
             "newLine": true,
             "xs": 12,
             "sm": 12,

@@ -4,8 +4,16 @@
 declare global {
     namespace ioBroker {
         interface AdapterConfig {
-            option1: boolean;
-            option2: string;
+            /** E-mail address of the Dreo account */
+            email: string;
+            /** Password of the Dreo account (stored encrypted) */
+            password: string;
+            /** Dreo cloud region */
+            region: 'eu' | 'us';
+            /** Fallback polling interval in seconds */
+            refreshInterval: number;
+            /** Receive real-time updates via WebSocket */
+            useWebSocket: boolean;
         }
     }
 }

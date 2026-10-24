@@ -1,5 +1,14 @@
 {
     "dreo-control adapter settings": "Impostazioni dell'adattatore per dreo-control",
-    "option1": "opzione1",
-    "option2": "opzione2"
+    "email": "E-mail",
+    "email_help": "Indirizzo e-mail del tuo account Dreo",
+    "password": "Password",
+    "refreshInterval": "Intervallo di aggiornamento (secondi)",
+    "refreshInterval_help": "Intervallo di polling come fallback per la connessione in tempo reale (minimo 60 secondi)",
+    "region": "Regione",
+    "region_eu": "Europa",
+    "region_help": "Regione cloud Dreo del tuo account",
+    "region_us": "Nord America/Globale",
+    "useWebSocket": "Utilizza aggiornamenti in tempo reale (WebSocket)",
+    "useWebSocket_help": "Ricevi le modifiche del dispositivo istantaneamente invece che solo tramite polling"
 }

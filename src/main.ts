@@ -5,11 +5,33 @@
 // The adapter-core module gives you access to the core ioBroker functions
 // you need to create an adapter
 import * as utils from '@iobroker/adapter-core';
+import { DreoAuthenticationError, DreoClient, DreoFan, DreoHeater } from 'dreo-client';
+import type { DreoDevice, DreoRegion, TemperatureUnit } from 'dreo-client';
+import { getStateDefinitions, type StateDefinition } from './lib/state-definitions';
 
-// Load your modules here, e.g.:
-// import * as fs from 'fs';
+const MIN_REFRESH_INTERVAL_S = 60;
+const DEFAULT_REFRESH_INTERVAL_S = 300;
+const INITIAL_RECONNECT_DELAY_MS = 5 * 60 * 1000;
+const MAX_RECONNECT_DELAY_MS = 60 * 60 * 1000;
+const MANUAL_REFRESH_ID = 'commands.manualRefresh';
+
+/** Objects and state definitions created for one Dreo device */
+interface DeviceContext {
+    device: DreoDevice;
+    objectId: string;
+    states: Map<string, StateDefinition>;
+}
 
 class DreoControl extends utils.Adapter {
+    private client: DreoClient | undefined;
+    private temperatureUnit: TemperatureUnit = 'celsius';
+    private cloudConnected = false;
+    private refreshTimer: ioBroker.Interval | undefined;
+    private reconnectTimer: ioBroker.Timeout | undefined;
+    private reconnectDelayMs = INITIAL_RECONNECT_DELAY_MS;
+    /** Device contexts by device object ID */
+    private readonly devices = new Map<string, DeviceContext>();
+
     public constructor(options: Partial<utils.AdapterOptions> = {}) {
         super({
             ...options,
@@ -17,8 +39,6 @@ class DreoControl extends utils.Adapter {
         });
         this.on('ready', this.onReady.bind(this));
         this.on('stateChange', this.onStateChange.bind(this));
-        // this.on('objectChange', this.onObjectChange.bind(this));
-        // this.on('message', this.onMessage.bind(this));
         this.on('unload', this.onUnload.bind(this));
     }
 
@@ -26,61 +46,195 @@ class DreoControl extends utils.Adapter {
      * Is called when databases are connected and adapter received configuration.
      */
     private async onReady(): Promise<void> {
-        // Initialize your adapter here
+        await this.setConnected(false, true);
 
-        // The adapters config (in the instance object everything under the attribute "native") is accessible via
-        // this.config:
-        this.log.debug('config option1: ${this.config.option1}');
-        this.log.debug('config option2: ${this.config.option2}');
+        if (!this.config.email || !this.config.password) {
+            this.log.warn('Please configure e-mail and password of your Dreo account in the instance settings');
+            return;
+        }
 
-        /*
-		For every state in the system there has to be also an object of type state
-		Here a simple template for a boolean variable named "testVariable"
-		Because every adapter instance uses its own unique namespace variable names can't collide with other adapters variables
+        const region: DreoRegion = this.config.region === 'us' ? 'us' : 'eu';
+        this.temperatureUnit = region === 'us' ? 'fahrenheit' : 'celsius';
 
-		IMPORTANT: State roles should be chosen carefully based on the state's purpose.
-		           Please refer to the state roles documentation for guidance:
-		           https://www.iobroker.net/#en/documentation/dev/stateroles.md
-		*/
-        await this.setObjectNotExistsAsync('testVariable', {
-            type: 'state',
-            common: {
-                name: 'testVariable',
-                type: 'boolean',
-                role: 'indicator',
-                read: true,
-                write: true,
-            },
+        let refreshInterval = Number(this.config.refreshInterval) || DEFAULT_REFRESH_INTERVAL_S;
+        if (refreshInterval < MIN_REFRESH_INTERVAL_S) {
+            this.log.warn(
+                `Refresh interval of ${refreshInterval}s is too short, using ${MIN_REFRESH_INTERVAL_S}s instead`,
+            );
+            refreshInterval = MIN_REFRESH_INTERVAL_S;
+        }
+
+        // Without WebSocket the client must not open a socket for commands either
+        this.client = new DreoClient({ region, autoReconnect: this.config.useWebSocket });
+        this.client.on('deviceUpdate', (device: DreoDevice) => {
+            this.log.debug(`Received update for ${device.name} (${device.sn})`);
+            void this.updateDeviceStates(device);
+        });
+        this.client.on('error', (error: Error) => {
+            this.log.warn(`Dreo cloud connection error: ${error.message}`);
+        });
+
+        this.subscribeStates('*');
+
+        await this.connect();
+
+        this.refreshTimer = this.setInterval(() => void this.refreshAll(), refreshInterval * 1000);
+    }
+
+    /**
+     * Logs in, discovers all devices and starts real-time monitoring.
+     * Schedules a new attempt with increasing delay on failure.
+     */
+    private async connect(): Promise<void> {
+        if (!this.client) {
+            return;
+        }
+        try {
+            await this.client.login(this.config.email, this.config.password);
+            this.log.info(`Logged in to Dreo cloud (region ${this.client.getRegion()})`);
+
+            const devices = await this.client.getDevices(true);
+            this.log.info(`Found ${devices.length} Dreo device(s)`);
+            for (const device of devices) {
+                await this.createDeviceObjects(device);
+                await this.updateDeviceStates(device);
+            }
+
+            if (this.config.useWebSocket) {
+                await this.client.startMonitoring();
+            }
+
+            this.reconnectDelayMs = INITIAL_RECONNECT_DELAY_MS;
+            await this.setConnected(true);
+        } catch (error) {
+            await this.handleConnectionError(error);
+        }
+    }
+
+    /**
+     * Marks the connection as lost and schedules a reconnect with backoff.
+     *
+     * @param error - Error thrown by the Dreo client
+     */
+    private async handleConnectionError(error: unknown): Promise<void> {
+        await this.setConnected(false);
+        this.client?.stopMonitoring();
+
+        const delayMinutes = Math.round(this.reconnectDelayMs / 60000);
+        if (error instanceof DreoAuthenticationError) {
+            this.log.error(
+                `Login to Dreo cloud failed: ${error.message}. Please verify e-mail, password and region. Retrying in ${delayMinutes} min`,
+            );
+        } else {
+            this.log.warn(
+                `Connection to Dreo cloud failed: ${(error as Error).message}. Retrying in ${delayMinutes} min`,
+            );
+        }
+        this.scheduleReconnect();
+    }
+
+    private scheduleReconnect(): void {
+        if (this.reconnectTimer) {
+            return;
+        }
+        this.reconnectTimer = this.setTimeout(() => {
+            this.reconnectTimer = undefined;
+            void this.connect();
+        }, this.reconnectDelayMs);
+        this.reconnectDelayMs = Math.min(this.reconnectDelayMs * 2, MAX_RECONNECT_DELAY_MS);
+    }
+
+    /**
+     * Polls the current state of all devices from the cloud.
+     */
+    private async refreshAll(): Promise<void> {
+        if (!this.client || !this.cloudConnected) {
+            return;
+        }
+        try {
+            const devices = await this.client.getDevices(true);
+            for (const device of devices) {
+                if (!this.devices.has(this.deviceObjectId(device))) {
+                    await this.createDeviceObjects(device);
+                }
+                await this.updateDeviceStates(device);
+            }
+        } catch (error) {
+            await this.handleConnectionError(error);
+        }
+    }
+
+    private deviceObjectId(device: DreoDevice): string {
+        return device.sn.replace(this.FORBIDDEN_CHARS, '_');
+    }
+
+    /**
+     * Creates or updates the device object, its channels and states.
+     *
+     * @param device - Dreo device
+     */
+    private async createDeviceObjects(device: DreoDevice): Promise<void> {
+        if (!device.sn) {
+            this.log.warn(`Ignoring device ${device.name} (${device.model}) without serial number`);
+            return;
+        }
+        if (!(device instanceof DreoHeater) && !(device instanceof DreoFan)) {
+            this.log.info(
+                `Device ${device.name} has unsupported model ${device.model}, only common states are created. Please report this model.`,
+            );
+        }
+
+        const objectId = this.deviceObjectId(device);
+        await this.extendObjectAsync(objectId, {
+            type: 'device',
+            common: { name: device.name },
+            native: { sn: device.sn, model: device.model },
+        });
+        await this.extendObjectAsync(`${objectId}.info`, {
+            type: 'channel',
+            common: { name: 'Information' },
             native: {},
         });
 
-        // In order to get state updates, you need to subscribe to them. The following line adds a subscription for our variable we have created above.
-        this.subscribeStates('testVariable');
-        // You can also add a subscription for multiple states. The following line watches all states starting with "lights."
-        // this.subscribeStates('lights.*');
-        // Or, if you really must, you can also watch all states. Don't do this if you don't need to. Otherwise this will cause a lot of unnecessary load on the system:
-        // this.subscribeStates('*');
+        const states = new Map<string, StateDefinition>();
+        for (const definition of getStateDefinitions(device, this.temperatureUnit)) {
+            await this.extendObjectAsync(`${objectId}.${definition.id}`, {
+                type: 'state',
+                common: definition.common,
+                native: {},
+            });
+            states.set(definition.id, definition);
+        }
+        this.devices.set(objectId, { device, objectId, states });
+    }
 
-        /*
-			setState examples
-			you will notice that each setState will cause the stateChange event to fire (because of above subscribeStates cmd)
-		*/
-        // the variable testVariable is set to true as command (ack=false)
-        await this.setState('testVariable', true);
+    /**
+     * Writes all changed device values to ioBroker.
+     *
+     * @param device - Dreo device
+     */
+    private async updateDeviceStates(device: DreoDevice): Promise<void> {
+        const context = this.devices.get(this.deviceObjectId(device));
+        if (!context) {
+            return;
+        }
+        try {
+            for (const definition of context.states.values()) {
+                const value = definition.get();
+                if (value !== undefined) {
+                    await this.setStateChangedAsync(`${context.objectId}.${definition.id}`, value, true);
+                }
+            }
+        } catch (error) {
+            this.log.warn(`Updating states of ${device.name} failed: ${(error as Error).message}`);
+        }
+    }
 
-        // same thing, but the value is flagged "ack"
-        // ack should be always set to true if the value is received from or acknowledged from the target system
-        await this.setState('testVariable', { val: true, ack: true });
-
-        // same thing, but the state is deleted after 30s (getState will return null afterwards)
-        await this.setState('testVariable', { val: true, ack: true, expire: 30 });
-
-        // examples for the checkPassword/checkGroup functions
-        const pwdResult = await this.checkPasswordAsync('admin', 'iobroker');
-        this.log.info(`check user admin pw iobroker: ${JSON.stringify(pwdResult)}`);
-
-        const groupResult = await this.checkGroupAsync('admin', 'admin');
-        this.log.info(`check group user admin group admin: ${JSON.stringify(groupResult)}`);
+    private async setConnected(connected: boolean, force = false): Promise<void> {
+        if (this.cloudConnected !== connected || force) {
+            this.cloudConnected = connected;
+            await this.setState('info.connection', connected, true);
+        }
     }
 
     /**
@@ -90,33 +244,17 @@ class DreoControl extends utils.Adapter {
      */
     private onUnload(callback: () => void): void {
         try {
-            // Here you must clear all timeouts or intervals that may still be active
-            // clearTimeout(timeout1);
-            // clearTimeout(timeout2);
-            // ...
-            // clearInterval(interval1);
-
-            callback();
+            this.clearInterval(this.refreshTimer);
+            this.clearTimeout(this.reconnectTimer);
+            this.client?.stopMonitoring();
+            this.client?.removeAllListeners();
+            void this.setState('info.connection', false, true);
         } catch (error) {
             this.log.error(`Error during unloading: ${(error as Error).message}`);
+        } finally {
             callback();
         }
     }
-
-    // If you need to react to object changes, uncomment the following block and the corresponding line in the constructor.
-    // You also need to subscribe to the objects with `this.subscribeObjects`, similar to `this.subscribeStates`.
-    // /**
-    //  * Is called if a subscribed object changes
-    //  */
-    // private onObjectChange(id: string, obj: ioBroker.Object | null | undefined): void {
-    //     if (obj) {
-    //         // The object was changed
-    //         this.log.info(`object ${id} changed: ${JSON.stringify(obj)}`);
-    //     } else {
-    //         // The object was deleted
-    //         this.log.info(`object ${id} deleted`);
-    //     }
-    // }
 
     /**
      * Is called if a subscribed state changes
@@ -125,38 +263,72 @@ class DreoControl extends utils.Adapter {
      * @param state - State object
      */
     private onStateChange(id: string, state: ioBroker.State | null | undefined): void {
-        if (state) {
-            // The state was changed
-            this.log.info(`state ${id} changed: ${state.val} (ack = ${state.ack})`);
+        if (!state || state.ack) {
+            return;
+        }
+        void this.handleCommand(id.substring(this.namespace.length + 1), state.val);
+    }
 
-            if (state.ack === false) {
-                // This is a command from the user (e.g., from the UI or other adapter)
-                // and should be processed by the adapter
-                this.log.info(`User command received for ${id}: ${state.val}`);
-
-                // TODO: Add your control logic here
+    /**
+     * Processes a user command (state change with ack=false).
+     *
+     * @param id - State ID relative to the adapter namespace
+     * @param value - Requested value
+     */
+    private async handleCommand(id: string, value: ioBroker.StateValue): Promise<void> {
+        try {
+            if (id === MANUAL_REFRESH_ID) {
+                await this.refreshAll();
+                await this.setState(MANUAL_REFRESH_ID, value, true);
+                return;
             }
-        } else {
-            // The object was deleted or the state value has expired
-            this.log.info(`state ${id} deleted`);
+
+            const separator = id.indexOf('.');
+            const context = this.devices.get(id.substring(0, separator));
+            const definition = context?.states.get(id.substring(separator + 1));
+            if (!context || !definition?.set) {
+                this.log.warn(`State ${id} is not writable`);
+                return;
+            }
+            if (!this.cloudConnected) {
+                this.log.warn(`Not connected to Dreo cloud, command ${id}=${value} ignored`);
+                return;
+            }
+
+            try {
+                await definition.set(value);
+                await this.setState(id, definition.get() ?? value, true);
+            } catch (error) {
+                this.log.warn(`Command ${id}=${value} failed: ${(error as Error).message}`);
+                await this.restoreState(context, definition);
+            }
+        } catch (error) {
+            this.log.error(`Error handling command ${id}: ${(error as Error).message}`);
         }
     }
-    // If you need to accept messages in your adapter, uncomment the following block and the corresponding line in the constructor.
-    // /**
-    //  * Some message was sent to this instance over message box. Used by email, pushover, text2speech, ...
-    //  * Using this method requires "common.messagebox" property to be set to true in io-package.json
-    //  */
-    //
-    // private onMessage(obj: ioBroker.Message): void {
-    //     if (typeof obj === 'object' && obj.message) {
-    //         if (obj.command === 'send') {
-    //             // e.g. send email or pushover or whatever
-    //             this.log.info('send command');
-    //             // Send response in callback if required
-    //             if (obj.callback) this.sendTo(obj.from, obj.command, 'Message received', obj.callback);
-    //         }
-    //     }
-    // }
+
+    /**
+     * Re-reads the device state from the cloud after a failed command so the
+     * ioBroker state reflects the actual device value again.
+     *
+     * @param context - Device context
+     * @param definition - Definition of the state the command was sent for
+     */
+    private async restoreState(context: DeviceContext, definition: StateDefinition): Promise<void> {
+        try {
+            const reported = await this.client?.httpService.getDeviceState(context.device.sn);
+            if (reported) {
+                context.device.updateState(reported);
+            }
+        } catch (error) {
+            this.log.debug(`Refreshing ${context.device.name} failed: ${(error as Error).message}`);
+        }
+        const value = definition.get();
+        if (value !== undefined) {
+            await this.setState(`${context.objectId}.${definition.id}`, value, true);
+        }
+        await this.updateDeviceStates(context.device);
+    }
 }
 if (require.main !== module) {
     // Export the constructor in compact mode
