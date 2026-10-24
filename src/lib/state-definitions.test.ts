@@ -70,7 +70,7 @@ describe('state-definitions', () => {
 
     it('creates only common states for unknown devices', () => {
         const ids = getStateDefinitions(devices.generic, 'celsius').map(d => d.id);
-        expect(ids).to.have.members(['power', 'info.online', 'info.model', 'info.name']);
+        expect(ids).to.have.members(['power', 'info.online', 'info.model', 'info.name', 'info.product']);
     });
 
     it('creates heater states', () => {
@@ -122,6 +122,37 @@ describe('state-definitions', () => {
             await target.set!(68);
             expect(sentCommands).to.have.length(1);
             expect(sentCommands[0]).to.include({ ecolevel: 68, target_temp: 20, temp_unit: 'fahrenheit' });
+        });
+    });
+
+    describe('device information', () => {
+        function infoValue(raw: Record<string, unknown>, id: string): unknown {
+            const device = new DreoDevice({ ...rawDevice('DR-HSH006S'), ...raw }, transport);
+            return byId(getStateDefinitions(device, 'celsius'), id).get();
+        }
+
+        it('builds the product name from brand and series', () => {
+            expect(infoValue({ brand: 'Dreo', seriesName: '316S', productName: 'Heater' }, 'info.product')).to.equal(
+                'Dreo 316S',
+            );
+        });
+
+        it('falls back to the product name without series', () => {
+            expect(infoValue({ brand: 'Dreo', productName: 'Heater' }, 'info.product')).to.equal('Heater');
+        });
+
+        it('falls back to the model without series and product name', () => {
+            expect(infoValue({}, 'info.product')).to.equal('DR-HSH006S');
+        });
+
+        it('reports online from the connected state', () => {
+            expect(infoValue({ reported: { connected: true } }, 'info.online')).to.equal(true);
+            expect(infoValue({ reported: { connected: false } }, 'info.online')).to.equal(false);
+        });
+
+        it('falls back to the device list online flag', () => {
+            expect(infoValue({ online: false }, 'info.online')).to.equal(false);
+            expect(infoValue({}, 'info.online')).to.equal(true);
         });
     });
 

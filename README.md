@@ -59,9 +59,10 @@ For every device, a device object named by its serial number is created (`dreo-c
 | State | Devices | Writable | Description |
 |-------|---------|:--------:|-------------|
 | `power` | all | ✓ | Power on/off |
-| `info.online` | all | | Device online |
+| `info.online` | all | | Device connected to the Dreo cloud (updated with every refresh) |
 | `info.model` | all | | Device model |
 | `info.name` | all | | Device name from the Dreo app |
+| `info.product` | all | | Product name, e.g. `Dreo 316S` |
 | `temperature` | heater | | Current temperature |
 | `targetTemperature` | heater | ✓ | Target temperature |
 | `mode` | heater | ✓ | Operating mode: `heat`, `eco`, `fan` |
@@ -83,6 +84,7 @@ For every device, a device object named by its serial number is created (`dreo-c
 ### **WORK IN PROGRESS**
 * (Marc Lammers) initial release
 * (Marc Lammers) Dreo cloud integration for heaters and fans with real-time updates
+* (Marc Lammers) Added `info.product`, `info.online` now reflects the real connection state
 
 ## License
 MIT License

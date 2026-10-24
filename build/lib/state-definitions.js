@@ -30,7 +30,14 @@ const TARGET_TEMPERATURE_RANGE = {
 function temperatureUnitSymbol(unit) {
   return unit === "fahrenheit" ? "\xB0F" : "\xB0C";
 }
+function productName(raw) {
+  if (raw.seriesName) {
+    return [raw.brand, raw.seriesName].filter(Boolean).join(" ");
+  }
+  return raw.productName || raw.model;
+}
 function commonDeviceStates(device) {
+  const raw = device.rawDevice;
   return [
     {
       id: "power",
@@ -41,7 +48,10 @@ function commonDeviceStates(device) {
     {
       id: "info.online",
       common: { name: "Online", type: "boolean", role: "indicator.reachable", read: true, write: false },
-      get: () => device.online
+      get: () => {
+        const connected = device.state.connected;
+        return typeof connected === "boolean" ? connected : device.online;
+      }
     },
     {
       id: "info.model",
@@ -52,6 +62,11 @@ function commonDeviceStates(device) {
       id: "info.name",
       common: { name: "Name", type: "string", role: "text", read: true, write: false },
       get: () => device.name
+    },
+    {
+      id: "info.product",
+      common: { name: "Product", type: "string", role: "text", read: true, write: false },
+      get: () => productName(raw)
     }
   ];
 }

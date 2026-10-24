@@ -1,5 +1,11 @@
 import { DreoFan, DreoHeater, FanWindType, HeaterMode } from 'dreo-client';
-import type { DreoDevice, TemperatureUnit } from 'dreo-client';
+import type { DreoDevice, DreoRawDevice, TemperatureUnit } from 'dreo-client';
+
+/** Device list fields reported by the Dreo cloud but not declared by `dreo-client` */
+interface RawDeviceInfo extends DreoRawDevice {
+    seriesName?: string | null;
+    productName?: string | null;
+}
 
 /**
  * Declarative description of one ioBroker state of a Dreo device.
@@ -30,7 +36,15 @@ export function temperatureUnitSymbol(unit: TemperatureUnit): string {
     return unit === 'fahrenheit' ? '°F' : '°C';
 }
 
+function productName(raw: RawDeviceInfo): string {
+    if (raw.seriesName) {
+        return [raw.brand, raw.seriesName].filter(Boolean).join(' ');
+    }
+    return raw.productName || raw.model;
+}
+
 function commonDeviceStates(device: DreoDevice): StateDefinition[] {
+    const raw: RawDeviceInfo = device.rawDevice;
     return [
         {
             id: 'power',
@@ -41,7 +55,10 @@ function commonDeviceStates(device: DreoDevice): StateDefinition[] {
         {
             id: 'info.online',
             common: { name: 'Online', type: 'boolean', role: 'indicator.reachable', read: true, write: false },
-            get: () => device.online,
+            get: () => {
+                const connected: unknown = device.state.connected;
+                return typeof connected === 'boolean' ? connected : device.online;
+            },
         },
         {
             id: 'info.model',
@@ -52,6 +69,11 @@ function commonDeviceStates(device: DreoDevice): StateDefinition[] {
             id: 'info.name',
             common: { name: 'Name', type: 'string', role: 'text', read: true, write: false },
             get: () => device.name,
+        },
+        {
+            id: 'info.product',
+            common: { name: 'Product', type: 'string', role: 'text', read: true, write: false },
+            get: () => productName(raw),
         },
     ];
 }
