@@ -21,7 +21,7 @@
     "url": "https://github.com/marc2016/ioBroker.dreo-control.git"
   },
   "engines": {
-    "node": ">= 20.19"
+    "node": ">= 22"
   },
   "dependencies": {
     "@iobroker/adapter-core": "^3.4.3",

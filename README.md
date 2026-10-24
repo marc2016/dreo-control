@@ -32,7 +32,7 @@ Device support is provided by the [dreo-client](https://github.com/marc2016/dreo
 
 ### Requirements
 
-- Node.js >= 20.19
+- Node.js >= 22
 - js-controller >= 6.0.11, admin >= 7.0.23
 
 ### Configuration
@@ -80,6 +80,9 @@ For every device, a device object named by its serial number is created (`dreo-c
     Placeholder for the next version (at the beginning of the line):
     ### **WORK IN PROGRESS**
 -->
+### **WORK IN PROGRESS**
+* (Marc Lammers) Node.js 22 or newer is required
+
 ### 0.1.0 (2026-10-24)
 * (Marc Lammers) initial release
 * (Marc Lammers) Dreo cloud integration for heaters and fans with real-time updates
