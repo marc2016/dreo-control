@@ -4,30 +4,17 @@
         "version": "0.1.0",
         "news": {
             "0.1.0": {
-                "en": "initial release\nDreo cloud integration for heaters and fans with real-time updates\nAdded `info.product`, `info.online` now reflects the real connection state",
-                "de": "erste Version\nDreo Cloud-Integration für Öfen und Lüfter mit Echtzeit-Updates\n`info.product` hinzugefügt, `info.online` zeigt nun den echten Verbindungsstatus",
-                "ru": "первоначальный релиз\nОблачная интеграция Dreo для обогревателей и вентиляторов с обновлениями в реальном времени\nДобавлен `info.product`, `info.online` теперь отражает реальное состояние соединения",
-                "pt": "versão inicial\nIntegração em nuvem Dreo para aquecedores e ventiladores em tempo real\nAdicionado `info.product`, `info.online` agora reflete o estado real da conexão",
-                "nl": "eerste uitgave\nDreo-cloudintegratie voor verwarmingstoestellen en ventilatoren met realtime updates\n`info.product` toegevoegd, `info.online` geeft nu de werkelijke verbindingsstatus weer",
-                "fr": "sortie initiale\nIntégration du cloud Dreo pour les chauffages et les ventilateurs en temps réel\n« info.product » a été ajouté, « info.online » reflète désormais l'état réel de la connexion",
-                "it": "prima versione\nIntegrazione cloud Dreo per termosifoni con aggiornamenti in tempo reale\nAggiunto `info.product`, `info.online` ora lo stato reale della connessione",
-                "es": "versión inicial\nIntegración en la nube de calefactores y ventiladores con actualizaciones en tiempo real\nAñadido `info.product`, `info.online` refleja ahora el estado real de la conexión",
-                "pl": "wstępne wydanie\nIntegracja chmury Dreo dla grzejników i wentylatorów z aktualizacjami w czasie rzeczywistym\nDodano `info.product`, `info.online` teraz odzwierciedla rzeczywisty stan połączenia",
-                "uk": "первинний випуск\nХмарна інтеграція Dreo для обігрівачів і вентиляторів з оновленнями в режимі реального\nДодано `info.product`, `info.online` тепер відображає реальний стан з'єднання",
-                "zh-cn": "初始版本\n用于加热器和风扇的 Dreo 云集成，具有实时更新\n添加了 `info.product`，`info.online`现在反映了真实的连接状态"
-            },
-            "0.0.1": {
-                "en": "initial release",
-                "de": "Erstveröffentlichung",
-                "ru": "Начальная версия",
-                "pt": "lançamento inicial",
-                "nl": "Eerste uitgave",
-                "fr": "Première version",
-                "it": "Versione iniziale",
-                "es": "Versión inicial",
-                "pl": "Pierwsze wydanie",
-                "uk": "Початкова версія",
-                "zh-cn": "首次出版"
+                "en": "Initial release\nDreo cloud integration for heaters and fans with real-time updates\nAdded `info.product`, `info.online` now reflects the real connection state",
+                "de": "Erstveröffentlichung\nDreo-Cloud-Integration für Heizlüfter und Ventilatoren mit Echtzeit-Aktualisierungen\n`info.product` hinzugefügt, `info.online` zeigt jetzt den tatsächlichen Verbindungsstatus",
+                "ru": "Первый выпуск\nОблачная интеграция Dreo для обогревателей и вентиляторов с обновлениями в реальном времени\nДобавлен `info.product`, `info.online` теперь отражает реальное состояние подключения",
+                "pt": "Versão inicial\nIntegração com a nuvem Dreo para aquecedores e ventiladores com atualizações em tempo real\nAdicionado `info.product`, `info.online` agora reflete o estado real da conexão",
+                "nl": "Eerste uitgave\nDreo-cloudintegratie voor kachels en ventilatoren met realtime updates\n`info.product` toegevoegd, `info.online` geeft nu de werkelijke verbindingsstatus weer",
+                "fr": "Première version\nIntégration au cloud Dreo pour radiateurs et ventilateurs avec mises à jour en temps réel\nAjout de `info.product`, `info.online` reflète désormais l’état réel de la connexion",
+                "it": "Prima versione\nIntegrazione cloud Dreo per stufette e ventilatori con aggiornamenti in tempo reale\nAggiunto `info.product`, `info.online` ora riflette lo stato reale della connessione",
+                "es": "Versión inicial\nIntegración con la nube de Dreo para calefactores y ventiladores con actualizaciones en tiempo real\nAñadido `info.product`, `info.online` ahora refleja el estado real de la conexión",
+                "pl": "Pierwsze wydanie\nIntegracja z chmurą Dreo dla grzejników i wentylatorów z aktualizacjami w czasie rzeczywistym\nDodano `info.product`, `info.online` odzwierciedla teraz rzeczywisty stan połączenia",
+                "uk": "Перший випуск\nХмарна інтеграція Dreo для обігрівачів і вентиляторів з оновленнями в реальному часі\nДодано `info.product`, `info.online` тепер відображає реальний стан підключення",
+                "zh-cn": "首次发布\n通过 Dreo 云集成取暖器和风扇，支持实时更新\n新增 `info.product`，`info.online` 现在反映真实的连接状态"
             }
         },
         "titleLang": {
