@@ -1,6 +1,6 @@
 {
   "name": "iobroker.dreo-control",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Control Dreo smart heaters and fans via the Dreo cloud",
   "author": {
     "name": "Marc Lammers",

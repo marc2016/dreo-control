@@ -1,132 +1,157 @@
 {
-    "common": {
-        "name": "dreo-control",
-        "version": "0.1.0",
-        "news": {
-            "0.1.0": {
-                "en": "Initial release\nDreo cloud integration for heaters and fans with real-time updates\nAdded `info.product`, `info.online` now reflects the real connection state",
-                "de": "Erstveröffentlichung\nDreo-Cloud-Integration für Heizlüfter und Ventilatoren mit Echtzeit-Aktualisierungen\n`info.product` hinzugefügt, `info.online` zeigt jetzt den tatsächlichen Verbindungsstatus",
-                "ru": "Первый выпуск\nОблачная интеграция Dreo для обогревателей и вентиляторов с обновлениями в реальном времени\nДобавлен `info.product`, `info.online` теперь отражает реальное состояние подключения",
-                "pt": "Versão inicial\nIntegração com a nuvem Dreo para aquecedores e ventiladores com atualizações em tempo real\nAdicionado `info.product`, `info.online` agora reflete o estado real da conexão",
-                "nl": "Eerste uitgave\nDreo-cloudintegratie voor kachels en ventilatoren met realtime updates\n`info.product` toegevoegd, `info.online` geeft nu de werkelijke verbindingsstatus weer",
-                "fr": "Première version\nIntégration au cloud Dreo pour radiateurs et ventilateurs avec mises à jour en temps réel\nAjout de `info.product`, `info.online` reflète désormais l’état réel de la connexion",
-                "it": "Prima versione\nIntegrazione cloud Dreo per stufette e ventilatori con aggiornamenti in tempo reale\nAggiunto `info.product`, `info.online` ora riflette lo stato reale della connessione",
-                "es": "Versión inicial\nIntegración con la nube de Dreo para calefactores y ventiladores con actualizaciones en tiempo real\nAñadido `info.product`, `info.online` ahora refleja el estado real de la conexión",
-                "pl": "Pierwsze wydanie\nIntegracja z chmurą Dreo dla grzejników i wentylatorów z aktualizacjami w czasie rzeczywistym\nDodano `info.product`, `info.online` odzwierciedla teraz rzeczywisty stan połączenia",
-                "uk": "Перший випуск\nХмарна інтеграція Dreo для обігрівачів і вентиляторів з оновленнями в реальному часі\nДодано `info.product`, `info.online` тепер відображає реальний стан підключення",
-                "zh-cn": "首次发布\n通过 Dreo 云集成取暖器和风扇，支持实时更新\n新增 `info.product`，`info.online` 现在反映真实的连接状态"
-            }
-        },
-        "titleLang": {
-            "en": "Dreo Control",
-            "de": "Dreo-Kontrolle",
-            "ru": "Дрео Контроль",
-            "pt": "Controle Dreo",
-            "nl": "Dreo-controle",
-            "fr": "Contrôle Dréo",
-            "it": "Controllo Dreo",
-            "es": "Control de Dreo",
-            "pl": "Kontrola Dreo",
-            "uk": "Керування Dreo",
-            "zh-cn": "德里奥控制"
-        },
-        "desc": {
-            "en": "Control Dreo smart heaters and fans via the Dreo cloud",
-            "de": "Steuerung von Dreo Heizlüftern und Ventilatoren über die Dreo Cloud",
-            "ru": "Управление обогревателями и вентиляторами Dreo через облако Dreo",
-            "pt": "Controle aquecedores e ventiladores inteligentes Dreo através da nuvem Dreo",
-            "nl": "Bedien slimme Dreo-kachels en -ventilatoren via de Dreo-cloud",
-            "fr": "Contrôlez les radiateurs et ventilateurs intelligents Dreo via le cloud Dreo",
-            "it": "Controlla stufette e ventilatori intelligenti Dreo tramite il cloud Dreo",
-            "es": "Controle calefactores y ventiladores inteligentes Dreo a través de la nube Dreo",
-            "pl": "Sterowanie inteligentnymi grzejnikami i wentylatorami Dreo przez chmurę Dreo",
-            "uk": "Керування розумними обігрівачами та вентиляторами Dreo через хмару Dreo",
-            "zh-cn": "通过 Dreo 云控制 Dreo 智能取暖器和风扇"
-        },
-        "authors": ["Marc Lammers <marc@lammers.dev>"],
-        "keywords": ["dreo", "heater", "fan", "climate", "cloud"],
-        "licenseInformation": {
-            "type": "free",
-            "license": "MIT"
-        },
-        "platform": "Javascript/Node.js",
-        "icon": "dreo-control.png",
-        "enabled": true,
-        "extIcon": "https://raw.githubusercontent.com/marc2016/ioBroker.dreo-control/main/admin/dreo-control.png",
-        "readme": "https://github.com/marc2016/ioBroker.dreo-control/blob/main/README.md",
-        "loglevel": "info",
-        "tier": 3,
-        "mode": "daemon",
-        "type": "climate-control",
-        "compact": true,
-        "connectionType": "cloud",
-        "dataSource": "push",
-        "adminUI": {
-            "config": "json"
-        },
-        "dependencies": [
-            {
-                "js-controller": ">=6.0.11"
-            }
-        ],
-        "globalDependencies": [
-            {
-                "admin": ">=7.0.23"
-            }
-        ]
+  "common": {
+    "name": "dreo-control",
+    "version": "0.1.1",
+    "news": {
+      "0.1.1": {
+        "en": "Node.js 22 or newer is required",
+        "de": "Node.js 22 oder neuer ist nötig",
+        "ru": "Требуется файл Node.js 22 или более поздней версии",
+        "pt": "Requer Node.js 22 ou superior",
+        "nl": "Node.js 22 of nieuwer is vereist",
+        "fr": "Node.js 22 ou plus récent est requis",
+        "it": "È richiesto Node.js 22 o più",
+        "es": "Se necesita Node.js 22 o más",
+        "pl": "Wymagany jest Node.js 22 lub nowszy",
+        "uk": "Потрібен Node.js 22 або новіший",
+        "zh-cn": "需要 Node.js 2.2 或更高版本"
+      },
+      "0.1.0": {
+        "en": "Initial release\nDreo cloud integration for heaters and fans with real-time updates\nAdded `info.product`, `info.online` now reflects the real connection state",
+        "de": "Erstveröffentlichung\nDreo-Cloud-Integration für Heizlüfter und Ventilatoren mit Echtzeit-Aktualisierungen\n`info.product` hinzugefügt, `info.online` zeigt jetzt den tatsächlichen Verbindungsstatus",
+        "ru": "Первый выпуск\nОблачная интеграция Dreo для обогревателей и вентиляторов с обновлениями в реальном времени\nДобавлен `info.product`, `info.online` теперь отражает реальное состояние подключения",
+        "pt": "Versão inicial\nIntegração com a nuvem Dreo para aquecedores e ventiladores com atualizações em tempo real\nAdicionado `info.product`, `info.online` agora reflete o estado real da conexão",
+        "nl": "Eerste uitgave\nDreo-cloudintegratie voor kachels en ventilatoren met realtime updates\n`info.product` toegevoegd, `info.online` geeft nu de werkelijke verbindingsstatus weer",
+        "fr": "Première version\nIntégration au cloud Dreo pour radiateurs et ventilateurs avec mises à jour en temps réel\nAjout de `info.product`, `info.online` reflète désormais l’état réel de la connexion",
+        "it": "Prima versione\nIntegrazione cloud Dreo per stufette e ventilatori con aggiornamenti in tempo reale\nAggiunto `info.product`, `info.online` ora riflette lo stato reale della connessione",
+        "es": "Versión inicial\nIntegración con la nube de Dreo para calefactores y ventiladores con actualizaciones en tiempo real\nAñadido `info.product`, `info.online` ahora refleja el estado real de la conexión",
+        "pl": "Pierwsze wydanie\nIntegracja z chmurą Dreo dla grzejników i wentylatorów z aktualizacjami w czasie rzeczywistym\nDodano `info.product`, `info.online` odzwierciedla teraz rzeczywisty stan połączenia",
+        "uk": "Перший випуск\nХмарна інтеграція Dreo для обігрівачів і вентиляторів з оновленнями в реальному часі\nДодано `info.product`, `info.online` тепер відображає реальний стан підключення",
+        "zh-cn": "首次发布\n通过 Dreo 云集成取暖器和风扇，支持实时更新\n新增 `info.product`，`info.online` 现在反映真实的连接状态"
+      }
     },
-    "encryptedNative": ["password"],
-    "protectedNative": ["password"],
-    "native": {
-        "email": "",
-        "password": "",
-        "region": "eu",
-        "refreshInterval": 300,
-        "useWebSocket": true
+    "titleLang": {
+      "en": "Dreo Control",
+      "de": "Dreo-Kontrolle",
+      "ru": "Дрео Контроль",
+      "pt": "Controle Dreo",
+      "nl": "Dreo-controle",
+      "fr": "Contrôle Dréo",
+      "it": "Controllo Dreo",
+      "es": "Control de Dreo",
+      "pl": "Kontrola Dreo",
+      "uk": "Керування Dreo",
+      "zh-cn": "德里奥控制"
     },
-    "objects": [],
-    "instanceObjects": [
-        {
-            "_id": "info",
-            "type": "channel",
-            "common": {
-                "name": "Information"
-            },
-            "native": {}
-        },
-        {
-            "_id": "info.connection",
-            "type": "state",
-            "common": {
-                "role": "indicator.connected",
-                "name": "Connected to Dreo cloud",
-                "type": "boolean",
-                "read": true,
-                "write": false,
-                "def": false
-            },
-            "native": {}
-        },
-        {
-            "_id": "commands",
-            "type": "channel",
-            "common": {
-                "name": "Commands"
-            },
-            "native": {}
-        },
-        {
-            "_id": "commands.manualRefresh",
-            "type": "state",
-            "common": {
-                "role": "button",
-                "name": "Refresh all devices",
-                "type": "boolean",
-                "read": false,
-                "write": true,
-                "def": false
-            },
-            "native": {}
-        }
+    "desc": {
+      "en": "Control Dreo smart heaters and fans via the Dreo cloud",
+      "de": "Steuerung von Dreo Heizlüftern und Ventilatoren über die Dreo Cloud",
+      "ru": "Управление обогревателями и вентиляторами Dreo через облако Dreo",
+      "pt": "Controle aquecedores e ventiladores inteligentes Dreo através da nuvem Dreo",
+      "nl": "Bedien slimme Dreo-kachels en -ventilatoren via de Dreo-cloud",
+      "fr": "Contrôlez les radiateurs et ventilateurs intelligents Dreo via le cloud Dreo",
+      "it": "Controlla stufette e ventilatori intelligenti Dreo tramite il cloud Dreo",
+      "es": "Controle calefactores y ventiladores inteligentes Dreo a través de la nube Dreo",
+      "pl": "Sterowanie inteligentnymi grzejnikami i wentylatorami Dreo przez chmurę Dreo",
+      "uk": "Керування розумними обігрівачами та вентиляторами Dreo через хмару Dreo",
+      "zh-cn": "通过 Dreo 云控制 Dreo 智能取暖器和风扇"
+    },
+    "authors": [
+      "Marc Lammers <marc@lammers.dev>"
+    ],
+    "keywords": [
+      "dreo",
+      "heater",
+      "fan",
+      "climate",
+      "cloud"
+    ],
+    "licenseInformation": {
+      "type": "free",
+      "license": "MIT"
+    },
+    "platform": "Javascript/Node.js",
+    "icon": "dreo-control.png",
+    "enabled": true,
+    "extIcon": "https://raw.githubusercontent.com/marc2016/ioBroker.dreo-control/main/admin/dreo-control.png",
+    "readme": "https://github.com/marc2016/ioBroker.dreo-control/blob/main/README.md",
+    "loglevel": "info",
+    "tier": 3,
+    "mode": "daemon",
+    "type": "climate-control",
+    "compact": true,
+    "connectionType": "cloud",
+    "dataSource": "push",
+    "adminUI": {
+      "config": "json"
+    },
+    "dependencies": [
+      {
+        "js-controller": ">=6.0.11"
+      }
+    ],
+    "globalDependencies": [
+      {
+        "admin": ">=7.0.23"
+      }
     ]
+  },
+  "encryptedNative": [
+    "password"
+  ],
+  "protectedNative": [
+    "password"
+  ],
+  "native": {
+    "email": "",
+    "password": "",
+    "region": "eu",
+    "refreshInterval": 300,
+    "useWebSocket": true
+  },
+  "objects": [],
+  "instanceObjects": [
+    {
+      "_id": "info",
+      "type": "channel",
+      "common": {
+        "name": "Information"
+      },
+      "native": {}
+    },
+    {
+      "_id": "info.connection",
+      "type": "state",
+      "common": {
+        "role": "indicator.connected",
+        "name": "Connected to Dreo cloud",
+        "type": "boolean",
+        "read": true,
+        "write": false,
+        "def": false
+      },
+      "native": {}
+    },
+    {
+      "_id": "commands",
+      "type": "channel",
+      "common": {
+        "name": "Commands"
+      },
+      "native": {}
+    },
+    {
+      "_id": "commands.manualRefresh",
+      "type": "state",
+      "common": {
+        "role": "button",
+        "name": "Refresh all devices",
+        "type": "boolean",
+        "read": false,
+        "write": true,
+        "def": false
+      },
+      "native": {}
+    }
+  ]
 }
